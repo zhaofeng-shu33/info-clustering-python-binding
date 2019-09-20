@@ -1,7 +1,11 @@
 # info-clustering
+[![PyPI](https://img.shields.io/pypi/v/info-cluster.svg)](https://pypi.org/project/info-cluster)
 
 ## Usage
-After installing `info_cluster` package, you can use it as follows:
+```shell
+pip install info-cluster
+```
+After installing `info-cluster` package, you can use it as follows:
 ```Python
 from info_cluster import InfoCluster
 import networkx as nx
