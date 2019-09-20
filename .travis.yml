@@ -10,3 +10,10 @@ install:
 script:
   - pylint info_cluster setup.py
   - python setup.py install
+
+deploy:
+  provider: pypi
+  user: zhaofeng-shu33
+  password: $TWINE_PASSWORD
+  on:
+    tags: true
