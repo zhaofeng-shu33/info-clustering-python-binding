@@ -1,8 +1,9 @@
+# pylint: disable=missing-docstring
 import setuptools
 
 with open('README.md') as fh:
     LONG_DESCRIPTION = fh.read()
-    
+
 setuptools.setup(
     name='info_cluster',
     version='0.8',
