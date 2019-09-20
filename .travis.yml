@@ -5,7 +5,7 @@ python: 3.6
 
 install:
   - pip install pylint
-  - pip install -r info_cluster/requirements.txt
+  - pip install -r requirements.txt
 
 script:
   - pylint info_cluster setup.py
