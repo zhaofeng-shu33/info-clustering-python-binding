@@ -23,7 +23,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         Number of neighbors to use when constructing the affinity matrix using
         the nearest neighbors method. Ignored for ``affinity='rbf'``.
     '''
-    def __init__(self, gamma=1, affinity='rbf', n_neighbors=10):
+    def __init__(self, gamma=1, affinity='rbf', n_neighbors=10, delta_value = 0.1):
         self._gamma = gamma
         self.affinity = affinity
         self.n_neighbors = n_neighbors
@@ -33,6 +33,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         self.critical_values = []
         self.partition_list = []
         self.num_points = 0
+        self.delta_value = 0.1
 
     def fit(self, X, initialize_tree=True): # pylint: disable=too-many-arguments
         '''Construct an affinity graph from X using rbf kernel function,
@@ -162,14 +163,14 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
             elif not isinstance(self.affinity, str):
                 if self.affinity.count('nearest_neighbors') == 0:
                     raise ValueError("affinity list should specify nearest_neighbors")
-                connectivity = kneighbors_graph(X, n_neighbors=self.n_neighbors, include_self=True)
                 if self.affinity.count('laplacian') > 0:
                     affinity_matrix = pairwise_kernels(X, metric='laplacian', gamma=self._gamma)
                 elif self.affinity.count('rbf') > 0:
                     affinity_matrix = pairwise_kernels(X, metric='rbf', gamma=self._gamma)
                 else:
                     raise ValueError("affinity list should specify laplacian or rbf")
-                affinity_matrix = np.multiply(affinity_matrix, connectivity.todense())
+                connectivity = affinity_matrix > delta_value                    
+                affinity_matrix = np.multiply(affinity_matrix, connectivity)
             else:
                 raise NameError("Unknown affinity name %s" % self.affinity)
         else:
