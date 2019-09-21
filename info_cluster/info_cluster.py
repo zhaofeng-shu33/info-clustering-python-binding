@@ -169,7 +169,11 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                     affinity_matrix = pairwise_kernels(X, metric='rbf', gamma=self._gamma)
                 else:
                     raise ValueError("affinity list should specify laplacian or rbf")
-                affinity_matrix = np.multiply(affinity_matrix, connectivity.todense())
+                if self.affinity.count('reweight') == 0:
+                    affinity_matrix = np.multiply(affinity_matrix, connectivity.todense())
+                else:
+                    affinity_matrix = affinity_matrix * connectivity.todense()
+                    affinity_matrix = (affinity_matrix + affinity_matrix.T)
             else:
                 raise NameError("Unknown affinity name %s" % self.affinity)
         else:
