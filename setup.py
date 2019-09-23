@@ -6,7 +6,7 @@ with open('README.md') as fh:
 
 setuptools.setup(
     name='info_cluster',
-    version='0.8.post1',
+    version='0.9',
     packages=setuptools.find_packages(),
     install_requires=['numpy', 'scikit-learn', 'ete3', 'networkx', 'pspartition'],
     author="zhaofeng-shu33",

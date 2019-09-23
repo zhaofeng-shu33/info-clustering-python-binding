@@ -172,12 +172,12 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                 affinity_matrix = np.multiply(affinity_matrix, connectivity.todense())
             else:
                 raise NameError("Unknown affinity name %s" % self.affinity)
+            for s_i in range(n_samples):
+                for s_j in range(s_i+1, n_samples):
+                    sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))                
         else:
-            sparse_mat = nx.adjacency_matrix(X)
-            affinity_matrix = np.asarray(sparse_mat.todense(), dtype=float)
-
-        for s_i in range(n_samples):
-            for s_j in range(s_i+1, n_samples):
-                sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
+            for s_i,s_j,w in X.edges(data=True):
+                if s_i < s_j:
+                    sim_list.append((s_i, s_j, w['weight']))
 
         self.g = PsPartition(n_samples, sim_list)

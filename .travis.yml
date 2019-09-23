@@ -7,9 +7,10 @@ install:
   - pip install pylint
   - pip install -r requirements.txt
 
-script:
+script:  
   - pylint info_cluster setup.py
   - python setup.py install
+  - python info_cluster/test_info_cluster.py
 
 deploy:
   provider: pypi
