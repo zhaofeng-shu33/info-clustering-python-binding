@@ -1,4 +1,5 @@
 # info-clustering
+[![Travis](https://api.travis-ci.com/zhaofeng-shu33/info-clustering-python-binding.svg?branch=master)](https://travis-ci.com/zhaofeng-shu33/info-clustering-python-binding)
 [![PyPI](https://img.shields.io/pypi/v/info-cluster.svg)](https://pypi.org/project/info-cluster)
 
 ## Usage
