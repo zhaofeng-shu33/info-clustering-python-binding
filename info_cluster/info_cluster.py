@@ -87,7 +87,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
 
     def _get_hierachical_tree(self):
         max_num = self.num_points
-        node_list = [i for i in range(0, max_num)]
+        node_list = list(range(0, max_num))
         self._add_node(self.tree, node_list, 1)
 
     def _set_tree_depth(self, node, depth):
