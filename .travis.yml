@@ -1,60 +1,20 @@
-matrix:
-  include: 
-  - os: linux
-    dist: xenial
-    language: python
-    python: 3.6
-    sudo: required
-    services: docker
-    env: DOCKER_IMAGE=zhaofengshu33/lemon:v2
-         PLAT=manylinux2010_x86_64
-  - if: branch = master
-    os: osx
-    osx_image: xcode9.4
-    sudo: required
-    addons:
-      homebrew:
-        update: true
-        taps: zhaofeng-shu33/liblemonformula
-        packages:
-          - liblemon
-  - os: osx
-    osx_image: xcode10.2 
-    sudo: required
-    addons:
-      homebrew:
-        taps: zhaofeng-shu33/liblemonformula
-        packages:
-          - liblemon
+os: linux
+dist: xenial
+language: python
+python: 3.6
 
 install:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      pip install pylint
-      pip install -r info_cluster/requirement.txt
-    fi
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      sudo python3 -m pip install twine wheel cython
-    fi    
-script:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      python3 setup.py install
-      python3 -m unittest test.py
-    fi
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" -a "$TRAVIS_BRANCH" == "master" ]; then
-      python3 setup.py bdist_wheel
-      python3 -m twine upload dist/* -u zhaofeng-shu33 && echo success || echo "upload failed"
-    fi    
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then      
-      pylint info_cluster setup.py
-    fi
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" -a "$TRAVIS_BRANCH" == "master" ]; then
-      pip install twine
-      docker run --rm -e PLAT=$PLAT -v `pwd`:/code $DOCKER_IMAGE /bin/bash -c 'cd /code; ./build.sh'
-      python -m twine upload dist/wheelhouse/*.whl -u zhaofeng-shu33 && echo success || echo "upload failed"
-    fi
+  - pip install pylint
+  - pip install -r requirements.txt
+
+script:  
+  - pylint info_cluster setup.py
+  - python setup.py install
+  - python info_cluster/test_info_cluster.py
+
+deploy:
+  provider: pypi
+  user: zhaofeng-shu33
+  password: $TWINE_PASSWORD
+  on:
+    tags: true

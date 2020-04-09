@@ -87,7 +87,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
 
     def _get_hierachical_tree(self):
         max_num = self.num_points
-        node_list = [i for i in range(0, max_num)]
+        node_list = list(range(0, max_num))
         self._add_node(self.tree, node_list, 1)
 
     def _set_tree_depth(self, node, depth):
@@ -118,9 +118,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         '''get the clustering labels with the number of clusters no smaller than i
         Parameters
         ----------
-        i : int, number of cluster threshold
-        X : array-like, shape (n_samples, n_features). if provided,
-            recompute the result targeted only at the specified `i`.
+        min_num : int, minimal number of cluster
 
         Returns
         --------
@@ -171,15 +169,15 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                     affinity_matrix = pairwise_kernels(X, metric='rbf', gamma=self._gamma)
                 else:
                     raise ValueError("affinity list should specify laplacian or rbf")
-                affinity_matrix = affinity_matrix * connectivity.todense()
+                affinity_matrix = np.multiply(affinity_matrix, connectivity.todense())
             else:
                 raise NameError("Unknown affinity name %s" % self.affinity)
+            for s_i in range(n_samples):
+                for s_j in range(s_i+1, n_samples):
+                    sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
         else:
-            sparse_mat = nx.adjacency_matrix(X)
-            affinity_matrix = np.asarray(sparse_mat.todense(), dtype=float)
-
-        for s_i in range(n_samples):
-            for s_j in range(s_i+1, n_samples):
-                sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
+            for s_i, s_j, weight_dic in X.edges(data=True):
+                if s_i < s_j:
+                    sim_list.append((s_i, s_j, weight_dic['weight']))
 
         self.g = PsPartition(n_samples, sim_list)
