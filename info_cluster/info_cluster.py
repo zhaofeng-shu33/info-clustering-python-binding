@@ -177,7 +177,9 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                     sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
         else:
             for s_i, s_j, weight_dic in X.edges(data=True):
-                if s_i < s_j:
-                    sim_list.append((s_i, s_j, weight_dic['weight']))
+                s_ii = int(s_i)
+                s_jj = int(s_j)
+                if s_ii < s_jj:
+                    sim_list.append((s_ii, s_jj, weight_dic['weight']))
 
         self.g = PsPartition(n_samples, sim_list)
