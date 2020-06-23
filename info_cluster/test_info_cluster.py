@@ -37,7 +37,7 @@ class TestInfoCluster(unittest.TestCase):
         info_cluster_instance.fit(point_list)
         info_cluster_instance.print_hierarchical_tree()
         # print(info_cluster_instance.critical_values)
-        print(info_cluster_instance.partition_list)
+        # print(info_cluster_instance.partition_list)
     def test_further_clustering(self):
         ic = InfoCluster(affinity='precomputed')
         g = nx.Graph()

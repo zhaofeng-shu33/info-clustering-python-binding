@@ -33,6 +33,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         self.critical_values = []
         self.partition_list = []
         self.num_points = 0
+        self.graph = None
 
     def fit(self, X, initialize_tree=True, second_clustering=False): # pylint: disable=too-many-arguments
         '''Construct an affinity graph from X using rbf kernel function,
@@ -65,11 +66,11 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         for index, set_C in enumerate(partition):
             for item in set_C:
                 mapping_dic[item] = index
-        for s_i, s_j, weight_dic in self.graph.edges(data=True):
+        for s_i, s_j, weight in self.graph:
             s_ii = mapping_dic[int(s_i)]
             s_jj = mapping_dic[int(s_j)]
             if s_ii < s_jj:
-                affinity_matrix[s_ii, s_jj] += weight_dic['weight']
+                affinity_matrix[s_ii, s_jj] += weight
                 # store the number of times
                 affinity_matrix[s_jj, s_ii] += 1
         sim_list = []
@@ -217,11 +218,10 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                 for s_j in range(s_i+1, n_samples):
                     sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
         else:
-            self.graph = X
             for s_i, s_j, weight_dic in X.edges(data=True):
                 s_ii = int(s_i)
                 s_jj = int(s_j)
                 if s_ii < s_jj:
                     sim_list.append((s_ii, s_jj, weight_dic['weight']))
-
+        self.graph = sim_list
         self.g = PsPartition(n_samples, sim_list)
