@@ -8,7 +8,7 @@ setuptools.setup(
     name='info_cluster',
     version='0.9.post1',
     packages=setuptools.find_packages(),
-    install_requires=['numpy', 'scikit-learn<=0.23', 'ete3', 'networkx', 'pspartition'],
+    install_requires=['numpy', 'scikit-learn<0.24', 'ete3', 'networkx', 'pspartition'],
     author="zhaofeng-shu33",
     author_email="616545598@qq.com",
     description="a hierachical clustering algorithm based on information theory",

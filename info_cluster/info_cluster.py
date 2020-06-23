@@ -50,23 +50,37 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         self.partition_list = self.g.get_partitions()
         self.num_points = len(self.partition_list[-1])
         if second_clustering:
-            self._further_clustering(self.partition_list[1])
+            self._further_clustering(self.partition_list[1], X)
         if initialize_tree:
             self._get_hierachical_tree()
-    def _further_clustering(self, partition, method='average'):
-        '''give a partition, 1) construct a smaller subgraph and do info-clustering
+
+    def _further_clustering(self, partition, X, method='average'):
+        '''give a partition, 1) construct a smaller subgraph
+           and do info-clustering
            on it, 2) merge the new results to existing critical value list
            and partition list
         '''
         if method != 'average':
             raise NotImplementedError("method not supported")
         num_nodes = len(partition)
+        if num_nodes == self.num_points:
+            # no way to further clustering
+            return
+        if isinstance(X, np.ndarray):
+            _affinity_matrix = pairwise_kernels(X, metric='rbf',
+                gamma=self._gamma * num_nodes / self.num_points)
+            _graph = []
+            for i in range(self.num_points):
+                for j in range(i + 1, self.num_points):
+                    _graph.append((i, j, _affinity_matrix[i, j]))
+        else:
+            _graph = self.graph
         affinity_matrix = np.zeros([num_nodes, num_nodes])
         mapping_dic = {}
         for index, set_C in enumerate(partition):
             for item in set_C:
                 mapping_dic[item] = index
-        for s_i, s_j, weight in self.graph:
+        for s_i, s_j, weight in _graph:
             s_ii = mapping_dic[int(s_i)]
             s_jj = mapping_dic[int(s_j)]
             if s_ii < s_jj:
@@ -76,7 +90,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         sim_list = []
         for i in range(num_nodes):
             for j in range(i + 1):
-                if affinity_matrix[j, i] > 0:
+                if affinity_matrix[i, j] > 0:
                     sim_list.append((j, i, affinity_matrix[j, i]/affinity_matrix[i, j]))
         pspartition_object = PsPartition(num_nodes, sim_list)
         pspartition_object.run()
@@ -216,7 +230,8 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                 raise NameError("Unknown affinity name %s" % self.affinity)
             for s_i in range(n_samples):
                 for s_j in range(s_i+1, n_samples):
-                    sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
+                    if affinity_matrix[s_i, s_j] > 0:
+                        sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
         else:
             for s_i, s_j, weight_dic in X.edges(data=True):
                 s_ii = int(s_i)
