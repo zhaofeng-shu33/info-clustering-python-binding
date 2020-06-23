@@ -50,7 +50,11 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         self.partition_list = self.g.get_partitions()
         self.num_points = len(self.partition_list[-1])
         if second_clustering:
-            self._further_clustering(self.partition_list[1], X)
+            while True:
+                self._further_clustering(self.partition_list[1], X)
+                num_nodes = len(self.partition_list[1])
+                if num_nodes == self.num_points or num_nodes == 2:
+                    break
         if initialize_tree:
             self._get_hierachical_tree()
 
@@ -99,6 +103,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         new_critical_values.extend(self.critical_values)
         self.critical_values = new_critical_values
         new_partition_list = pspartition_object.get_partitions()
+        new_partition_list.reverse()
         for new_partition in new_partition_list[1:-1]:
             expanded_partition = []
             for set_C in new_partition:
