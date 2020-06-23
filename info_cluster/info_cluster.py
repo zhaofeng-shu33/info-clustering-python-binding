@@ -76,10 +76,11 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         for i in range(num_nodes):
             for j in range(i + 1):
                 if affinity_matrix[j, i] > 0:
-                    sim_list.append((i, j, affinity_matrix[i, j]/affinity_matrix[j, i]))
+                    sim_list.append((j, i, affinity_matrix[j, i]/affinity_matrix[i, j]))
         pspartition_object = PsPartition(num_nodes, sim_list)
         pspartition_object.run()
         new_critical_values = pspartition_object.get_critical_values()
+        self.critical_values.pop(0)
         new_critical_values.extend(self.critical_values)
         self.critical_values = new_critical_values
         new_partition_list = pspartition_object.get_partitions()

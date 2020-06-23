@@ -38,6 +38,20 @@ class TestInfoCluster(unittest.TestCase):
         info_cluster_instance.print_hierarchical_tree()
         # print(info_cluster_instance.critical_values)
         print(info_cluster_instance.partition_list)
+    def test_further_clustering(self):
+        ic = InfoCluster(affinity='precomputed')
+        g = nx.Graph()
+        g.add_edge(0, 1, weight=2)
+        g.add_edge(0, 2, weight=0.5)
+        g.add_edge(0, 3, weight=0.5)
+        g.add_edge(1, 3, weight=0.5)
+        g.add_edge(1, 2, weight=0.5)
+        g.add_edge(2, 3, weight=1.1)
+        ic.fit(g, second_clustering=True)
+        self.assertEqual(len(ic.partition_list), 4)
+        self.assertAlmostEqual(ic.critical_values[0], 1)
+        self.assertAlmostEqual(ic.critical_values[1], 1.1)
+        self.assertAlmostEqual(ic.critical_values[2], 2)
 
 if __name__ == '__main__':
     unittest.main()
