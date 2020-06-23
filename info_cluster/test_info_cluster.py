@@ -28,16 +28,16 @@ class TestInfoCluster(unittest.TestCase):
         info_cluster_instance.print_hierarchical_tree()
         self.assertEqual(info_cluster_instance.get_tree_depth(), 3)
     def test_10_point(self):
-        point_list = np.array([[0.8, 1.3], [0.9,1.2],
-            [0.9,-0.5],[0.7,-0.6],[1.0,-0.6],
-            [-1.3,-0.5],[-1.0,-0.6],[-1.1,-0.8],
-            [-2.7,-0.8],[-2.6,-0.9]
-        ])
+        point_list = np.array([[0.8, 1.3], [0.9, 1.2],
+                               [0.9, -0.5], [0.7, -0.6], [1.0, -0.6],
+                               [-1.3, -0.5], [-1.0, -0.6], [-1.1, -0.8],
+                               [-2.7, -0.8], [-2.6, -0.9]
+                              ])
         info_cluster_instance = InfoCluster(gamma=1, affinity="rbf")
         info_cluster_instance.fit(point_list)
         info_cluster_instance.print_hierarchical_tree()
         # print(info_cluster_instance.critical_values)
-        # print(info_cluster_instance.partition_list)
+        print(info_cluster_instance.partition_list)
 
 if __name__ == '__main__':
     unittest.main()
