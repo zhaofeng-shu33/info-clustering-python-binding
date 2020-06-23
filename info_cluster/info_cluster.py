@@ -34,7 +34,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         self.partition_list = []
         self.num_points = 0
 
-    def fit(self, X, initialize_tree=True): # pylint: disable=too-many-arguments
+    def fit(self, X, initialize_tree=True, second_clustering=False): # pylint: disable=too-many-arguments
         '''Construct an affinity graph from X using rbf kernel function,
         then applies info clustering to this affinity graph.
         Parameters
@@ -48,9 +48,49 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         self.critical_values = self.g.get_critical_values()
         self.partition_list = self.g.get_partitions()
         self.num_points = len(self.partition_list[-1])
+        if second_clustering:
+            self._further_clustering(self.partition_list[1])
         if initialize_tree:
             self._get_hierachical_tree()
-
+    def _further_clustering(self, partition, method='average'):
+        '''give a partition, 1) construct a smaller subgraph and do info-clustering
+           on it, 2) merge the new results to existing critical value list
+           and partition list
+        '''
+        if method != 'average':
+            raise NotImplementedError("method not supported")
+        num_nodes = len(partition)
+        affinity_matrix = np.zeros([num_nodes, num_nodes])
+        mapping_dic = {}
+        for index, set_C in enumerate(partition):
+            for item in set_C:
+                mapping_dic[item] = index
+        for s_i, s_j, weight_dic in self.graph.edges(data=True):
+            s_ii = mapping_dic[int(s_i)]
+            s_jj = mapping_dic[int(s_j)]
+            if s_ii < s_jj:
+                affinity_matrix[s_ii, s_jj] += weight_dic['weight']
+                # store the number of times
+                affinity_matrix[s_jj, s_ii] += 1
+        sim_list = []
+        for i in range(num_nodes):
+            for j in range(i + 1):
+                if affinity_matrix[j, i] > 0:
+                    sim_list.append((i, j, affinity_matrix[i, j]/affinity_matrix[j, i]))
+        pspartition_object = PsPartition(num_nodes, sim_list)
+        pspartition_object.run()
+        new_critical_values = pspartition_object.get_critical_values()
+        new_critical_values.extend(self.critical_values)
+        self.critical_values = new_critical_values
+        new_partition_list = pspartition_object.get_partitions()
+        for new_partition in new_partition_list[1:-1]:
+            expanded_partition = []
+            for set_C in new_partition:
+                expanded_set_C = set()
+                for item in set_C:
+                    expanded_set_C = expanded_set_C.union(partition[item])
+                expanded_partition.append(expanded_set_C)
+            self.partition_list.insert(1, expanded_partition)
     def fit_predict(self, X):
         '''fit'''
         self.fit(X)
@@ -176,6 +216,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
                 for s_j in range(s_i+1, n_samples):
                     sim_list.append((s_i, s_j, affinity_matrix[s_i, s_j]))
         else:
+            self.graph = X
             for s_i, s_j, weight_dic in X.edges(data=True):
                 s_ii = int(s_i)
                 s_jj = int(s_j)
