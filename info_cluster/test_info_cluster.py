@@ -52,6 +52,10 @@ class TestInfoCluster(unittest.TestCase):
         self.assertAlmostEqual(ic.critical_values[0], 1)
         self.assertAlmostEqual(ic.critical_values[1], 1.1)
         self.assertAlmostEqual(ic.critical_values[2], 2)
-
+    def test_further_clustering_data(self):
+        ic = InfoCluster(gamma=1.5)
+        ic.fit(np.array([[0.5, 1], [1, 0.5], [-0.1, 0], [0, -0.1]]),
+               second_clustering=True)
+        self.assertEqual(len(ic.partition_list), 4)
 if __name__ == '__main__':
     unittest.main()

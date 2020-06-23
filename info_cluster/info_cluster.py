@@ -63,7 +63,7 @@ class InfoCluster: # pylint: disable=too-many-instance-attributes
         if method != 'average':
             raise NotImplementedError("method not supported")
         num_nodes = len(partition)
-        if num_nodes == self.num_points:
+        if num_nodes == self.num_points or num_nodes == 2:
             # no way to further clustering
             return
         if isinstance(X, np.ndarray):
